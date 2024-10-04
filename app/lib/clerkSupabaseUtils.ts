@@ -1,8 +1,8 @@
 import { getAuth } from "@clerk/remix/ssr.server"
-import { LoaderFunctionArgs } from "@remix-run/node"
+import { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node"
 import { createClient } from "@supabase/supabase-js"
 import { useEffect } from "react";
-import { useSession } from "@clerk/remix";
+import { useSession, useUser } from "@clerk/remix";
 
 const COOKIE_NAME = '__supabaseClerkToken'
 
@@ -16,7 +16,7 @@ function parseCookies(cookieHeader: string): {[key: string]:string} {
   return cookies
 }
 
-export async function createSupabaseClient(args: LoaderFunctionArgs) {
+export async function createSupabaseClient(args: LoaderFunctionArgs | ActionFunctionArgs) {
   const { getToken } = await getAuth(args);
   let clerkToken: string | null = null
 
@@ -54,10 +54,13 @@ export async function createSupabaseClient(args: LoaderFunctionArgs) {
 }
 
 export function useClerkSupabaseTokenAsCookie() {
+  const { user } = useUser()
   const { session } = useSession()
 
   useEffect(() => {
     async function setTokenCookie() {
+      if(!user) return
+
       function parseJwt(token: string) {
         try {
           // Split the token into its parts

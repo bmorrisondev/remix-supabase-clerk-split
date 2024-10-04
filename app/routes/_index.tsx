@@ -62,6 +62,8 @@ export default function Index() {
 
           <ul>
             {data.map((el: unknown) => (
+              // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+              // @ts-ignore: Ignore typing for now
               <li key={el.id}>{el.name}</li>
             ))}
           </ul>
